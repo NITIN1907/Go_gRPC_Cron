@@ -1,0 +1,51 @@
+Goals
+-Support 10,000 concurrent gRPC requests/sec
+-Run across multiple data centers
+-Ensure high availability and scalable performance
+
+
+High-Level Architecture
+
+client --> Global Load Balancer --> Regional Load Balancer (NGINX with gRPC support)-->  gRPC Service --> Message Queue   (Stores tasks temporarily — Kafka / Redis Streams)--> Worker Pool(Processes tasks and generates reports)-->Storage (Database with backup and replication)
+
+Horizontal Scaling of gRPC Servers
+
+-Run the gRPC service as Docker containers.
+-containers are managed by Kubernetes – which helps with deployment, scaling, and recovery.
+-Each container runs a stateless gRPC server – this means it doesn’t store any user-specific data between requests
+
+How do we scale automatically?
+
+Using HPA (Horizontal Pod Autoscaler) in Kubernetes.
+-It monitors the load on each gRPC server.
+-If servers are busy (high CPU/RAM or too many requests), it automatically adds more servers (pods).
+-If traffic drops, it removes unnecessary servers to save cost.
+
+
+gRPC Load Balancing
+
+-NGINX with gRPC support
+-Use gRPC round-robin / weighted load balancing for backend traffic.
+-Global traffic handled by:Anycast IP (via BGP) for lowest-latency region routing
+
+
+Report Storage & Persistence
+
+-Use asynchronous processing: gRPC server pushes report generation tasks to a queue (e.g., Kafka / RabbitMQ / Redis Streams)
+-Storage options
+-Add caching layer (Redis) for frequent report fetches.
+
+ Multi-Data Center Resilience
+
+-Each data center operates independently but synchronizes via cross-region database replication and message broker mirroring (e.g., Kafka MirrorMaker).
+-Ensure graceful degradation: if one DC fails, traffic reroutes to others automatically.
+-Health checks + service mesh  for automatic failovers.
+
+ Monitoring
+-Collect metrics using Prometheus + Grafana dashboards.
+-Centralized logging with ELK (Elasticsearch, Logstash, Kibana) or EFK (Fluentd) stack
+
+CI/CD & Deployment
+-Define infrastructure as code using Terraform for reliable and repeatable setups.
+-Use GitOps with tools like ArgoCD or Flux for version-controlled deployment.
+

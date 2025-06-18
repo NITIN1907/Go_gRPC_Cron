@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option go_package = "./";
+
+service ReportService{
+    rpc GenerateReport(UserRequest) returns (ReportResponse);
+    rpc HealthCheck(HealthRequest) returns (HealthResponse);
+}
+
+message UserRequest{
+    string userID = 1;
+}
+
+message ReportResponse{
+    string reportID = 1;
+    string error = 2;
+}
+
+message HealthRequest {}
+
+message HealthResponse{
+    string status = 1;
+}
