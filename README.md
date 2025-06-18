@@ -9,7 +9,7 @@ This project is a small gRPC-based Go service designed to:
 - Include a `HealthCheck` gRPC endpoint
 - Log all operations with timestamps
 
-It follows best practices for modular Go development and is fully testable via unit tests, a gRPC client, and CLI tools like Evans.
+It follows best practices for modular Go development and is fully testable via unit tests and a gRPC client
 
 ---
 
